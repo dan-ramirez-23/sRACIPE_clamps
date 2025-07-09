@@ -61,7 +61,7 @@ void calcMultiplier(const int& geneCount1, const int& geneCount2,
       geneActMultiplier = geneLambda+(1.-geneLambda)*
         1./(1.+std::pow((geneValue/geneThreshold),geneN));
         geneActMultiplier2=1.0;
-      break;  
+      break;
 
     default :
       Rcout << "Invalid Interation code for Gene"<<geneCount1
@@ -135,20 +135,20 @@ void stepEM( std::vector <double> &exprxGene,
       int colIdx = 1; //0 column is time
       for(int geneCount1=0;geneCount1<numberGene;geneCount1++){
           if(signalingTypes[geneCount1] == 1){ //g signaling
-            calcSigValues(timePoints, i, 
+            calcSigValues(timePoints, i,
               signalVals( _ , colIdx), gMults[geneCount1]);
             colIdx++;
           }
           else if(signalingTypes[geneCount1] == 2){ //k signaling
-            calcSigValues(timePoints, i, 
+            calcSigValues(timePoints, i,
               signalVals( _ , colIdx), kMults[geneCount1]);
             colIdx++;
           }
           else if(signalingTypes[geneCount1] == 3){ //g and k signaling
-            calcSigValues(timePoints, i, 
+            calcSigValues(timePoints, i,
               signalVals( _ , colIdx), gMults[geneCount1]);
             colIdx++;
-            calcSigValues(timePoints, i, 
+            calcSigValues(timePoints, i,
               signalVals( _ , colIdx), kMults[geneCount1]);
             colIdx++;
         }
@@ -252,12 +252,12 @@ void stepEM_OU( std::vector <double> &exprxGene,
   for(int geneCount1=0;geneCount1<numberGene;geneCount1++)
   {
     exprxGeneH[geneCount1] = exprxGene[geneCount1];
-    prevNoise[geneCount1] = D*Darray[geneCount1] * g_distribution(g_generator); 
+    prevNoise[geneCount1] = D*Darray[geneCount1] * g_distribution(g_generator);
   }
 
   double i=0.0;
   double printTime = printStart;
-  
+
   //These vectors are used for time varying param signaling
   std::vector<double> gMults(numberGene, 1);
   std::vector<double> kMults(numberGene, 1);
@@ -269,20 +269,20 @@ void stepEM_OU( std::vector <double> &exprxGene,
       int colIdx = 1; //0 column is time
       for(int geneCount1=0;geneCount1<numberGene;geneCount1++){
           if(signalingTypes[geneCount1] == 1){ //g signaling
-            calcSigValues(timePoints, i, 
+            calcSigValues(timePoints, i,
               signalVals( _ , colIdx), gMults[geneCount1]);
             colIdx++;
           }
           else if(signalingTypes[geneCount1] == 2){ //k signaling
-            calcSigValues(timePoints, i, 
+            calcSigValues(timePoints, i,
               signalVals( _ , colIdx), kMults[geneCount1]);
             colIdx++;
           }
           else if(signalingTypes[geneCount1] == 3){ //g and k signaling
-            calcSigValues(timePoints, i, 
+            calcSigValues(timePoints, i,
               signalVals( _ , colIdx), gMults[geneCount1]);
             colIdx++;
-            calcSigValues(timePoints, i, 
+            calcSigValues(timePoints, i,
               signalVals( _ , colIdx), kMults[geneCount1]);
             colIdx++;
         }
@@ -293,16 +293,15 @@ void stepEM_OU( std::vector <double> &exprxGene,
     {
       double growthMultiplier=1;
       double degMultiplier=1;
-      currNoise[geneCount1] = prevNoise[geneCount1] * exp(-h/ouNoise_t) + 
+      currNoise[geneCount1] = prevNoise[geneCount1] * exp(-h/ouNoise_t) +
         D*Darray[geneCount1] * sqrt(1-exp(-2*h/ouNoise_t)) * g_distribution(g_generator);
 
-      if(!noClamps){
-        auto it = clamps.find(geneCount1);
-        if (it != clamps.end()){
-          // If clamped, set to the clamped value
-          exprxGeneH[geneCount1] = it->second[modelNo];
-        }
-      }else{
+      auto it = clamps.find(geneCount1);
+      if (it != clamps.end() && !noClamps) {
+        // Clamped: override expression
+        exprxGeneH[geneCount1] = it->second[modelNo];
+      } else {
+        // Unclamped: compute normally
         for(int geneCount2=0;geneCount2<numberGene;geneCount2++)
         {
           double geneValue=exprxGene[geneCount2];
@@ -310,8 +309,8 @@ void stepEM_OU( std::vector <double> &exprxGene,
           int geneN=NGene[geneCount1][geneCount2];
           double geneLambda=lambda_gene[geneCount1][geneCount2];
           calcMultiplier(geneCount1, geneCount2, growthMultiplier, degMultiplier,
-                              geneValue, geneInteraction, geneN, geneLambda,
-                              geneThreshold);
+                         geneValue, geneInteraction, geneN, geneLambda,
+                         geneThreshold);
         }
         if (geneTypes[geneCount1] == 2){
           growthMultiplier = growthMultiplier*signalRate;
@@ -319,11 +318,11 @@ void stepEM_OU( std::vector <double> &exprxGene,
         }
         exprxGeneH[geneCount1] = exprxGene[geneCount1] +
           h*(gGene[geneCount1]*growthMultiplier*gMults[geneCount1]
-          -kGene[geneCount1]*kMults[geneCount1]*
-          exprxGene[geneCount1]*degMultiplier) +
-          h*currNoise[geneCount1]+
-          D_shot_scaling*D*sqrt(h)*g_distribution(g_generator)*
-          Darray[geneCount1]*exprxGene[geneCount1];
+               -kGene[geneCount1]*kMults[geneCount1]*
+                 exprxGene[geneCount1]*degMultiplier) +
+                 h*currNoise[geneCount1]+
+                 D_shot_scaling*D*sqrt(h)*g_distribution(g_generator)*
+                 Darray[geneCount1]*exprxGene[geneCount1];
         if(exprxGeneH[geneCount1]<0) exprxGeneH[geneCount1]=0;
       }
     }
@@ -405,20 +404,20 @@ if(isTimeVarying){ //Apply time-varying gene parm changes
     int colIdx = 1; //0 column is time
     for(int geneCount1=0;geneCount1<numberGene;geneCount1++){
         if(signalingTypes[geneCount1] == 1){ //g signaling
-          calcSigValues(timePoints, 0, 
+          calcSigValues(timePoints, 0,
             signalVals( _ , colIdx), gMults[geneCount1]);
-          colIdx++;  
+          colIdx++;
         }
         else if(signalingTypes[geneCount1] == 2){ //k signaling
-          calcSigValues(timePoints, 0, 
+          calcSigValues(timePoints, 0,
             signalVals( _ , colIdx), kMults[geneCount1]);
           colIdx++;
         }
         else if(signalingTypes[geneCount1] == 3){ //g and k signaling
-          calcSigValues(timePoints, 0, 
+          calcSigValues(timePoints, 0,
             signalVals( _ , colIdx), gMults[geneCount1]);
           colIdx++;
-          calcSigValues(timePoints, 0, 
+          calcSigValues(timePoints, 0,
             signalVals( _ , colIdx), kMults[geneCount1]);
           colIdx++;
         }
@@ -426,7 +425,7 @@ if(isTimeVarying){ //Apply time-varying gene parm changes
 }
 
 do
-{ 
+{
   for(int geneCount1=0;geneCount1<numberGene;geneCount1++)
   {
     double growthMultiplier=1;
@@ -465,20 +464,20 @@ do
     int colIdx = 1; //0 column is time
     for(int geneCount1=0;geneCount1<numberGene;geneCount1++){
         if(signalingTypes[geneCount1] == 1){ //g signaling
-          calcSigValues(timePoints, i+h/2, 
+          calcSigValues(timePoints, i+h/2,
             signalVals( _ , colIdx), gMults[geneCount1]);
-          colIdx++;  
+          colIdx++;
         }
         else if(signalingTypes[geneCount1] == 2){ //k signaling
-          calcSigValues(timePoints, i+h/2, 
+          calcSigValues(timePoints, i+h/2,
             signalVals( _ , colIdx), kMults[geneCount1]);
           colIdx++;
         }
         else if(signalingTypes[geneCount1] == 3){ //g and k signaling
-          calcSigValues(timePoints, i+h/2, 
+          calcSigValues(timePoints, i+h/2,
             signalVals( _ , colIdx), gMults[geneCount1]);
           colIdx++;
-          calcSigValues(timePoints, i+h/2, 
+          calcSigValues(timePoints, i+h/2,
             signalVals( _ , colIdx), kMults[geneCount1]);
           colIdx++;
         }
@@ -558,24 +557,24 @@ do
   }
 
   //Apply time-varying gene parm changes for step 4, and step 1 of next iteration
-  if(isTimeVarying){ 
+  if(isTimeVarying){
     int colIdx = 1; //0 column is time
     for(int geneCount1=0;geneCount1<numberGene;geneCount1++){
         if(signalingTypes[geneCount1] == 1){ //g signaling
-          calcSigValues(timePoints, i+h, 
+          calcSigValues(timePoints, i+h,
             signalVals( _ , colIdx), gMults[geneCount1]);
-          colIdx++;  
+          colIdx++;
         }
         else if(signalingTypes[geneCount1] == 2){ //k signaling
-          calcSigValues(timePoints, i+h, 
+          calcSigValues(timePoints, i+h,
             signalVals( _ , colIdx), kMults[geneCount1]);
           colIdx++;
         }
         else if(signalingTypes[geneCount1] == 3){ //g and k signaling
-          calcSigValues(timePoints, i+h, 
+          calcSigValues(timePoints, i+h,
             signalVals( _ , colIdx), gMults[geneCount1]);
           colIdx++;
-          calcSigValues(timePoints, i+h, 
+          calcSigValues(timePoints, i+h,
             signalVals( _ , colIdx), kMults[geneCount1]);
           colIdx++;
         }
@@ -693,7 +692,7 @@ void stepDP( std::vector <double> &exprxGene,
   double i=0.0;
   int printCounter = 0;
 
-  
+
   //These vectors are used for time varying param signaling
   std::vector<double> gMults(numberGene, 1);
   std::vector<double> kMults(numberGene, 1);
@@ -704,20 +703,20 @@ void stepDP( std::vector <double> &exprxGene,
       int colIdx = 1; //0 column is time
       for(int geneCount1=0;geneCount1<numberGene;geneCount1++){
           if(signalingTypes[geneCount1] == 1){ //g signaling
-            calcSigValues(timePoints, i, 
+            calcSigValues(timePoints, i,
               signalVals( _ , colIdx), gMults[geneCount1]);
             colIdx++;
           }
           else if(signalingTypes[geneCount1] == 2){ //k signaling
-            calcSigValues(timePoints, i, 
+            calcSigValues(timePoints, i,
               signalVals( _ , colIdx), kMults[geneCount1]);
             colIdx++;
           }
           else if(signalingTypes[geneCount1] == 3){ //g and k signaling
-            calcSigValues(timePoints, i, 
+            calcSigValues(timePoints, i,
               signalVals( _ , colIdx), gMults[geneCount1]);
             colIdx++;
-            calcSigValues(timePoints, i, 
+            calcSigValues(timePoints, i,
               signalVals( _ , colIdx), kMults[geneCount1]);
             colIdx++;
           }
@@ -755,7 +754,7 @@ void stepDP( std::vector <double> &exprxGene,
         exprxGeneH1[geneCount1]=h*(gGene[geneCount1]*growthMultiplier
           *gMults[geneCount1]-kGene[geneCount1]
           *kMults[geneCount1]*exprxGene[geneCount1]*degMultiplier);
-      } 
+      }
     }
 
     for(int geneCount1=0;geneCount1<numberGene;geneCount1++)
